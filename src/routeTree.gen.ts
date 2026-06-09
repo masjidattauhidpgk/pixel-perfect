@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as OpgRouteImport } from './routes/opg'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
@@ -35,6 +36,11 @@ import { Route as AuthenticatedAkademikImporRouteImport } from './routes/_authen
 import { Route as AuthenticatedAkademikGuruRouteImport } from './routes/_authenticated/akademik/guru'
 import { Route as AuthenticatedAkademikCetakNilaiRouteImport } from './routes/_authenticated/akademik/cetak-nilai'
 
+const OpgRoute = OpgRouteImport.update({
+  id: '/opg',
+  path: '/opg',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
@@ -183,6 +189,7 @@ const AuthenticatedAkademikCetakNilaiRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/opg': typeof OpgRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/setup': typeof AuthenticatedSetupRoute
   '/akademik/cetak-nilai': typeof AuthenticatedAkademikCetakNilaiRoute
@@ -209,6 +216,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/opg': typeof OpgRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/setup': typeof AuthenticatedSetupRoute
   '/akademik/cetak-nilai': typeof AuthenticatedAkademikCetakNilaiRoute
@@ -237,6 +245,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
+  '/opg': typeof OpgRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/setup': typeof AuthenticatedSetupRoute
   '/_authenticated/akademik/cetak-nilai': typeof AuthenticatedAkademikCetakNilaiRoute
@@ -265,6 +274,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/auth'
+    | '/opg'
     | '/dashboard'
     | '/setup'
     | '/akademik/cetak-nilai'
@@ -291,6 +301,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/auth'
+    | '/opg'
     | '/dashboard'
     | '/setup'
     | '/akademik/cetak-nilai'
@@ -318,6 +329,7 @@ export interface FileRouteTypes {
     | '/'
     | '/_authenticated'
     | '/auth'
+    | '/opg'
     | '/_authenticated/dashboard'
     | '/_authenticated/setup'
     | '/_authenticated/akademik/cetak-nilai'
@@ -346,10 +358,18 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
+  OpgRoute: typeof OpgRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/opg': {
+      id: '/opg'
+      path: '/opg'
+      fullPath: '/opg'
+      preLoaderRoute: typeof OpgRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/auth': {
       id: '/auth'
       path: '/auth'
@@ -586,7 +606,18 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
+  OpgRoute: OpgRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
